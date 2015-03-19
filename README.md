@@ -54,6 +54,8 @@ Here's a very simple script which uses cliwrangler to log into a switch and run 
 ```python
 #!/usr/bin/python
 
+import cliwrangler
+
 # Set credentials.
 device = 'test-cisco-switch.mynetworkrules.biz'
 username = 'cisco'
@@ -66,10 +68,10 @@ session.connect(device=device, username=username, password=password)
 
 # Try a command, but if it doesn't work, enable and try it again.
 try:
-    session.send('show run | incl netman')
+    session.send('show run | incl aaa')
 except:
     session.enable(enablepass)
-    session.send('show run | incl netman')
+    session.send('show run | incl aaa')
 
 # Not necessary to close by hand, but it's there if you want it.
 session.close()
