@@ -12,6 +12,7 @@
 import paramiko
 import paramikoe
 import re
+import yaml
 
 class CLIWrangler:
     """This class provides a clean interface to a Cisco IOS CLI ssh session. 
@@ -145,7 +146,28 @@ class CLIWrangler:
         
     def _identify(self):
         """Run various commands to identify the device we're on."""
-        pass
+
+        # Here's a big collection of strings to look for.
+        # If we find any of these in command output, we add them.
+        identification_strings = yaml.load("""
+            - Cisco
+            - ' IOS '
+            - ' C3750 '
+        """)
+
+        # Run a show ver and hope for the best.
+        # In the future, we might run a slew of commands and search through the
+        # output of any of the ones that worked.
+        self.send('show version')
+
+        # If any of the identification strings are found in the output, stick
+        # them into the identification array.
+        for string in identification_strings:
+            if string in self.output:
+                # Remove whitespace and lowercase them.
+                self.identification.append(string.strip().lower())
+
+        return True
 
     def _expect_prompt(self):
         """Expect something that looks like our prompt. It may have changed by
