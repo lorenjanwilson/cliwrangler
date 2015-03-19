@@ -13,6 +13,6 @@ setup(
     install_requires=[
         'paramiko >= 1.10.1',
         'paramiko-expect >= 0.2',
-        'yaml >= 3.0'
+        'pyyaml >= 3.0'
     ],
 )
