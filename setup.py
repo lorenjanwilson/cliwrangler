@@ -11,8 +11,8 @@ setup(
     platforms='Posix',
     py_modules=['cliwrangler'],
     install_requires=[
-        'paramiko>=1.10.1',
-        'paramiko-expect>=0.2',
-        'python-yaml'
+        'paramiko >= 1.10.1',
+        'paramiko-expect >= 0.2',
+        'python-yaml >= 3.0'
     ],
 )
