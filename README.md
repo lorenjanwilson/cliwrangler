@@ -5,6 +5,10 @@
 This is a python library which tries to do all the dirty work necessary for
 sending commands and receiving output from an SSH session to a network device.
 
+After much deliberation, I decided to use paramiko and paramiko-expect as the
+method to achieve the SSH connection magic and the expect-like functionality.
+They are fantastic libraries and I am really grateful to them.
+
 I'm hoping to get it working with the following types of devices:
 
 - Cisco IOS
@@ -31,8 +35,10 @@ The CLIWrangler class attempts to deal with the following nasty things on your b
 ### Why aren't you using NETCONF?
 
 Have you played with NETCONF at all? Try it and get back to me. If you have a
-large campus network, it's just not an option yet, and even if it is, it's far
-from intuitive and provides few useful functions. 
+large campus network, it's just not an option yet, because most devices don't
+support it very well at the old software versions that you see out in the wild.
+Even if you're lucky enough to have NETCONF support everywhere on your network,
+it's far from intuitive and doesn't make things any easier.
 
 Sorry to burst your bubble, but CLI scraping is still absolutely necessary
 unless you have a small network full of only one particular device family. I'd
