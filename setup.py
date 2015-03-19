@@ -12,6 +12,7 @@ setup(
     py_modules=['cliwrangler'],
     install_requires=[
         'paramiko>=1.10.1',
-        'paramiko-expect>=0.2'
+        'paramiko-expect>=0.2',
+        'python-yaml'
     ],
 )
