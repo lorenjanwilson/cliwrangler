@@ -148,11 +148,14 @@ class CLIWrangler:
         """Run various commands to identify the device we're on."""
 
         # Here's a big collection of strings to look for.
-        # If we find any of these in command output, we add them.
+        # If we find any of these strings in command output, we add their value
+        # to the identification list.
         identification_strings = yaml.load("""
-            - Cisco
-            - ' IOS '
-            - ' C3750 '
+            'Cisco ': 'Cisco'
+            'cisco ': 'Cisco'
+            'CISCO ': 'Cisco'
+            ' IOS ': 'IOS'
+            ' C3750 ': 'C3750'
         """)
 
         # Run a show ver and hope for the best.
@@ -162,10 +165,12 @@ class CLIWrangler:
 
         # If any of the identification strings are found in the output, stick
         # them into the identification array.
-        for string in identification_strings:
+        for string in identification_strings.keys():
             if string in self.output:
-                # Remove whitespace and lowercase them.
-                self.identification.append(string.strip().lower())
+                identity = identification_strings[string]
+                # Don't add it if it's already there. More than one might match.
+                if identity not in self.identification:
+                    self.identification.append(identity)
 
         return True
 
