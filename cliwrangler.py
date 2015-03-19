@@ -253,3 +253,12 @@ perform that action.
         else:
             return False
 
+    def interactive(self):
+        """Hand the session to the user.
+        This is useful if you do a really stupid thing in config mode and can
+        no longer log in, for example."""
+
+        self.interact.send(self.newline * 2)
+        self.interact.take_control()
+        return True
+        
