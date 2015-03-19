@@ -43,35 +43,39 @@ live in yet.
 
 To install cliwrangler, run the following command:
 
-    sudo pip install git+https://github.com/lorenjanwilson/cliwrangler.git
+```bash
+sudo pip install git+https://github.com/lorenjanwilson/cliwrangler.git
+```
 
 ## usage
 
 Here's a very simple script which uses cliwrangler to log into a switch and run a command, enabling if necessary:
 
-    #!/usr/bin/python
-    
-    # Set credentials.
-    device = 'test-cisco-switch.mynetworkrules.biz'
-    username = 'cisco'
-    password = 'sekrit'
-    enablepass = 'supersekrit'
-    
-    # Start me up. The "echo=True" will output everything to the screen.
-    session = cliwrangler.CLIWrangler(echo=True)
-    session.connect(device=device, username=username, password=password)
-    
-    # Try a command, but if it doesn't work, enable and try it again.
-    try:
-        session.send('show run | incl netman')
-    except:
-        session.enable(enablepass)
-        session.send('show run | incl netman')
-    
-    # Not necessary to close by hand, but it's there if you want it.
-    session.close()
-    # The output from the last command is in 'session.output'.
-    print "\n\n\n******\n%s\n\n" % (session.output)
+```python
+#!/usr/bin/python
+
+# Set credentials.
+device = 'test-cisco-switch.mynetworkrules.biz'
+username = 'cisco'
+password = 'sekrit'
+enablepass = 'supersekrit'
+
+# Start me up. The "echo=True" will output everything to the screen.
+session = cliwrangler.CLIWrangler(echo=True)
+session.connect(device=device, username=username, password=password)
+
+# Try a command, but if it doesn't work, enable and try it again.
+try:
+    session.send('show run | incl netman')
+except:
+    session.enable(enablepass)
+    session.send('show run | incl netman')
+
+# Not necessary to close by hand, but it's there if you want it.
+session.close()
+# The output from the last command is in 'session.output'.
+print "\n\n\n******\n%s\n\n" % (session.output)
+```
 
 ## class variables and methods
 
