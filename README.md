@@ -69,7 +69,7 @@ Here's a very simple script which uses cliwrangler to log into a switch and run 
         session.send('show run | incl netman')
     
     # Not necessary to close by hand, but it's there if you want it.
-    session.close
+    session.close()
     # The output from the last command is in 'session.output'.
     print "\n\n\n******\n%s\n\n" % (session.output)
 
