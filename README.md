@@ -7,7 +7,7 @@ sending commands and receiving output from an SSH session to a network device.
 
 After much deliberation, I decided to use paramiko and paramiko-expect as the
 method to achieve the SSH connection magic and the expect-like functionality.
-They are fantastic libraries and I am really grateful to them.
+They are fantastic libraries and I am really grateful to their authors.
 
 I'm hoping to get it working with the following types of devices:
 
