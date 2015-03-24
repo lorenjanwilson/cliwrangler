@@ -89,9 +89,10 @@ session.close()
 # The output from the last command is in 'session.output'.
 print "\n\n\n******\n%s\n\n" % (session.output)
 
-# We can see what kind of device we logged into by printing the identification
-# of this device that we collected.
-print session.identification
+# We can see what kind of device we logged into by printing the identifiers for
+# this device that we collected.
+
+print "identifiers: %s" % (session.identifiers)
 
 ```
 
