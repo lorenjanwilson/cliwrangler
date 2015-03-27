@@ -39,6 +39,8 @@ class CLIWrangler:
         self.echo = echo
         self.debug = debug
 
+        # The device they asked to connect to.
+        self.device = None
         # Our output after running a command.
         self.output = None
         self.output_raw = None
@@ -54,6 +56,11 @@ class CLIWrangler:
         # A list of keywords used to identify this device. Discovered via things like "show ver".
         # This might be something like ['Cisco', 'IOS', 'C3750'] or ['Cisco', 'NX-OS', 'Nexus', '5000']
         self.identifiers = []
+        # If an enable succeeds, we set this to True.
+        self.enabled = False
+        # If we decide this device is safe to change, we set this to True.
+        # If we decide this device is NOT safe to change, we set this to False.
+        self.changeable = None
 
         # Initialize Paramiko and Paramiko-expect objects.
         self.client = paramiko.SSHClient()
@@ -82,6 +89,8 @@ class CLIWrangler:
         password - The password to use.
         """
 
+        self.device = device
+
         # Set SSH key parameters to auto accept unknown hosts.
         self.client.load_system_host_keys()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -104,6 +113,10 @@ class CLIWrangler:
         
         # Identify the device we're on.
         self._identify()
+
+        # If we auto-enabled, we can set that bit now.
+        if re.match('^.*#\s*$', self.prompt):
+            self.enabled = True
 
         return True
 
@@ -133,10 +146,11 @@ class CLIWrangler:
             # by an allowed end-of-prompt character followed by the unique
             # string we typed.
             end_of_prompt_chars = ['>', '#', '$', '%']
-            # A prompt, simply, is 3 or more [a-z0-9-] characters, plus maybe
+            # A prompt, simply, is 3 or more [a-z0-9/-] characters, plus maybe
             # an extension of other things, with an end_of_prompt_char at the end,
-            # and maybe some whitespace after that.
-            general_prompt_regex_template = '[a-zA-Z0-9-]{3,}\s*%s\s*%s'
+            # and maybe some whitespace after that. You can thank the FWSM for
+            # using the forward slash in a prompt.
+            general_prompt_regex_template = '[a-zA-Z0-9/-]{3,}\s*%s\s*%s'
             # Create a regex for each char in the list above.
             general_prompt_regexes = [ general_prompt_regex_template % (char, unique_string) for char in end_of_prompt_chars ]
             # See if any of the "sane-looking possible prompts" matched.
@@ -280,7 +294,7 @@ class CLIWrangler:
         # On the off chance that we couldn't disable paging, hit space bar a
         # few times. This is pretty sad, but necessary for things like the
         # ASAs, which don't let you disable paging until you've enabled.
-        #self.interact.channel.send('     ')
+        self.interact.channel.send('     ')
 
         # Expect the end of the output of the send command.
         self._expect_output()
@@ -330,9 +344,14 @@ perform that action.
 
         # Make sure we enabled.
         if (re.search('#', self.prompt)):
-            return True
-        else:
-            return False
+            self.enabled = True
+
+        # If we're on an ASA, we need to disable paging here, because we
+        # couldn't do it during the _prepare.
+        if ("Cisco" in self.identifiers and "ASA" in self.identifiers):
+            self.send('terminal pager 0')
+
+        return self.enabled
 
     def interactive(self):
         """Hand the session to the user.
@@ -343,13 +362,13 @@ perform that action.
         self.interact.take_control()
         return True
 
-    def safe_to_modify(self):
+    def check_ha_status(self):
         """Run a series of tests to figure out whether we should make config
-        changes on this device.
+        changes on this device. This is an HA test.
 
-        Most things should return True, but the secondary (inactive) device in
-        a redundant pair should return False. If we can't figure it out, return 
-        None."""
+        Active or standalone devices should return True, and the secondary
+        (inactive) device in a redundant pair should return False. If we can't
+        figure it out, return None."""
 
         # We should use the identifiers to figure out how to proceed.
         # Cisco ASAs and FWSMs need to be checked to make sure they're
@@ -360,49 +379,77 @@ perform that action.
                 # Has to be graceful because this command requires the failover license.
                 self.send('show failover', graceful=True)
                 if re.search('Command requires failover license', self.output):
-                    return True
+                    self.changeable = True
                 elif 'Failover Off' in self.output:
-                    return True
+                    self.changeable = True
                 elif re.search('This host:.*- Active', self.output):
-                    return True
+                    self.changeable = True
                 elif re.search('This host:.*- Standby', self.output):
-                    return False
+                    self.changeable = False
                 else:
                     # We don't know for sure, so return None.
-                    return None
+                    pass
             elif "FWSM" in self.identifiers:
                 # We run "show failover" on the FWSM and look for various strings.
                 self.send('show failover', graceful=True)
                 if 'Failover Off' in self.output:
-                    return True
+                    self.changeable = True
                 elif 'This context: Active' in self.output:
-                    return True
-                elif 'This context: Standby' in self.output:
-                    return False
+                    self.changeable = True
                 elif re.search('This Host:.*- Active', self.output):
-                    return True
+                    self.changeable = True
+                elif 'This context: Standby' in self.output:
+                    self.changeable = False
                 elif re.search('This Host:.*- Standby', self.output):
-                    return False
+                    self.changeable = False
                 else:
                     # We don't know for sure, so return None.
-                    return None
+                    pass
             else:
                 # We'll always give a green light for Cisco devices.
-                return 1
+                self.changeable = True
         # On Fortinet devices, this probably won't always work, but it works
         # for FortiOS 5.x so far.
         elif "Fortinet" in self.identifiers:
             if "FortiGate" in self.identifiers:
                 self.send('get system status', graceful=True)
                 if 'Current HA mode: a-p, master' in self.output:
-                    return True
-                elif 'Current HA mode: a-p, backup' in self.output:
-                    return False
+                    self.changeable = True
                 elif 'Current HA mode: standalone' in self.output:
-                    return True
+                    self.changeable = True
+                elif 'Current HA mode: a-p, backup' in self.output:
+                    self.changeable = False
                 else:
                     # We don't know for sure, so return None.
-                    return None
+                    pass
         
         # For anything else, we aren't qualified to say with certainty.
-        return None
+        # The default value is None.
+        return self.changeable
+
+    def write_config(self):
+        """Write mem or copy run start or whatever.
+        Depending on the device type, this could be quite different."""
+
+        # Make sure we're enabled.
+        if not self.enabled:
+            raise Exception("Called write_config() without being enabled")
+            
+        if "Cisco" in self.identifiers:
+            if "IOS" in self.identifiers:
+                session.send('write memory')
+            elif "Nexus" in self.identifiers:
+                session.send('copy running-config startup-config')
+            elif "ASA" in self.identifiers:
+                session.send('write memory')
+            elif "FWSM" in self.identifiers:
+                session.send('write memory')
+        if "Fortinet" in self.identifiers:
+            if "FortiGate" in self.identifiers:
+                # FortiGate devices automatically write their config when you
+                # leave edit mode.
+                pass
+
+        return True
+
+
