@@ -5,10 +5,6 @@
 This is a python library which aspires to do all the dirty work necessary for
 sending commands and receiving output from an SSH session to a network device.
 
-After much experimentation, I decided to use paramiko and paramiko-expect as the
-method to achieve the SSH connection magic and the expect-like functionality.
-They are fantastic libraries and I am really grateful to their authors.
-
 I'm hoping to get it working with the following types of devices:
 
 - Cisco IOS
@@ -58,9 +54,15 @@ we live in yet. If you work at Cisco and you're reading this, please help!
 
 ### How do you make this happen in so few lines of code?
 
-I use paramiko and paramiko-expect to deal with all of the SSH things behind
-the scenes. It's great stuff. Without it, I would have had a much harder time
-doing this.
+After much experimentation, I decided to use
+[paramiko](http://www.paramiko.org) and
+[paramiko-expect](https://github.com/fgimian/paramiko-expect) 
+as the method to achieve the SSH connection magic and the expect-like
+functionality. They are fantastic libraries and I am really grateful to their
+authors.
+
+It's great stuff. Without those two libraries, I would have had a much harder
+time doing this.
 
 ## installation
 
