@@ -25,7 +25,7 @@ class CLIWrangler:
         Arguments:
         timeout - Connection timeout in seconds.
         newline - The newline character if '\r' doesn't work.
-        newline - The backspace character if '\b' doesn't work.
+        backspace - The backspace character if '\b' doesn't work.
         buffer_size - The buffer size.
         echo - Should we echo the session to the screen? (For verbosity purposes.)
         debug - Should we provide ssh debug information on the screen as well?
@@ -44,8 +44,6 @@ class CLIWrangler:
         # Our output after running a command.
         self.output = None
         self.output_raw = None
-        # The thing we just tried to send.
-        self.current_send_string = None
         # The last thing that matched during an expect.
         self.last_match = None
         # The last prompt we found, and a boolean for whether or not the prompt changed after the last command send.
@@ -286,6 +284,10 @@ class CLIWrangler:
         4. Clean the output if necessary.
         5. Check the output for obvious errors, and maybe raise an exception if we got one. 
         6. Send back the output and set it to self.output.
+
+        If you set "graceful" to True, this function will not raise an exception.
+        This allows us not to have to take sides in the
+        exceptions-vs.-return-codes holy war. 
         """
 
         # Send the command.
