@@ -23,7 +23,11 @@ I've used this to make changes on more device types.
 ## disclaimer
 
 This is not production-ready code. Use it at your own risk and proceed
-carefully. Do lots of testing in a testlab first. Don't mess up your network.
+carefully. Do lots of testing in a testlab before you unleash your scripts on a
+production network. 
+
+Don't mess up your network. I can't be held responsible for what you do with
+this code.
 
 ## features
 
