@@ -34,19 +34,33 @@ The CLIWrangler class attempts to deal with the following nasty things on your b
 
 ### Why aren't you using NETCONF?
 
-Have you played with NETCONF at all? Try it and get back to me. If you have a
-large campus network, it's just not an option yet, because most devices don't
-support it very well at the old software versions that you see out in the wild.
-Even if you're lucky enough to have NETCONF support everywhere on your network,
-it's far from intuitive and doesn't make things any easier.
+If you have a large, heterogenous campus network, NETCONF is usually not an
+option yet, because most devices don't support it very well at the software
+versions that you see out in the wild. And even if you're lucky enough to have
+NETCONF support everywhere on your network, using it can be far from intuitive.
 
-CLI scraping is still absolutely necessary unless you have a small network full
-of only one particular device family (or unless you're living in a Zen Whitebox
-Garden and you're using newer networking technologies to make everything
-happen). I'd love to have a REST API to every network device, but that's not
-the world we live in yet.
+I'm excited about using NETCONF when I can, but a good part of my job still
+needs me to interact with the CLI. I'd rather not do that by hand.
 
-If you work at Cisco and you're reading this, please help!
+### Yeah, but CLI scraping? That's so dirty, there's got to be a better way.
+
+Sometimes yes, sometimes no. Even in 2015, CLI scraping is often the most
+straightforward way to go about making a change on a large network. You can do
+things via SNMP writes or NETCONF or other vendor-specific APIs or centralized
+management technologies, but even then, you'll probably find that some things
+can still only be done via the CLI.
+
+Of course, if you're using generic whitebox network devices and doing
+everything with an SDN controller, you have more options.
+
+I'd love to have a REST API to every network device, but that's not the world
+we live in yet. If you work at Cisco and you're reading this, please help!
+
+### How do you make this happen in so few lines of code?
+
+I use paramiko and paramiko-expect to deal with all of the SSH things behind
+the scenes. It's great stuff. Without it, I would have had a much harder time
+doing this.
 
 ## installation
 
