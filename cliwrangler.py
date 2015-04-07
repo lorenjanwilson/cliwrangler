@@ -304,7 +304,7 @@ class CLIWrangler:
         self._expect_output()
 
         # If something looked like an error, print it and maybe raise an exception.
-        error_patterns = ['^% Invalid', '^ERROR: ', '^Cannot make changes', 'Command fail. Return code']
+        error_patterns = ['^% Invalid', '^% Incomplete', '^ERROR: ', '^Cannot make changes', 'Command fail. Return code']
         for error in error_patterns:
             if re.search(error, self.output, flags=re.MULTILINE):
                 # If they don't want exceptions, don't raise an exception.
@@ -433,18 +433,30 @@ perform that action.
 
     def apply_config(self, config):
         """Apply some config lines to the config.
+        You can pass in a string or a list.
         This should even be made to work on things like Juniper devices."""
 
         # Make sure we're enabled.
         if not self.enabled:
             raise Exception("Called apply_config() without being enabled")
 
+        # If it seems like we were passed a string, split it into a list.
+        # If this is a list, the split will raise an exception, which is fine.
+        try:
+            # This will transform a string into a list, even if it's just one
+            # item. Very classy.
+            config = config.split('\n')
+        except:
+            pass
+
         if "Cisco" in self.identifiers:
             if "IOS" in self.identifiers:
                 # Apply the config by entering config mode, writing lines, then
                 # leaving config mode.
                 self.send('configure terminal')
-                self.send(config)
+                # Send each line one at a time.
+                for line in config:
+                    self.send(line)
                 self.send('exit')
             else:
                 raise Exception("Don't know how to apply config on this type of Cisco device!")
