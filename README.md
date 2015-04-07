@@ -135,11 +135,12 @@ Thus far, a CLIWrangler object supports the following methods and variables.
 
 ### object instantiation
 
-* cliwrangler.CLIWrangler(timeout, newline, backspace, buffer_size, echo, debug) - Instantiate a cliwrangler object.
+* cliwrangler.CLIWrangler(timeout, newline, backspace, buffer_size, wait, echo, debug) - Instantiate a cliwrangler object.
     * timeout - Connection timeout in seconds.
     * newline - The newline character if '\r' doesn't work on this device.
     * backspace - The backspace character if '\b' doesn't work on this device.
     * buffer_size - The buffer size.
+    * wait - The time to wait after each command before continuing (sadly necessary for IOS-XE support).
     * echo - Should we echo the session to the screen? (For verbosity purposes.)
     * debug - Should we provide ssh debug information on the screen as well?
 
