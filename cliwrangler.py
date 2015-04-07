@@ -429,6 +429,26 @@ perform that action.
         # The default value is None.
         return self.changeable
 
+    def apply_config(self, config):
+        """Apply some config lines to the config.
+        This should even be made to work on things like Juniper devices."""
+
+        # Make sure we're enabled.
+        if not self.enabled:
+            raise Exception("Called apply_config() without being enabled")
+
+        if "Cisco" in self.identifiers:
+            if "IOS" in self.identifiers:
+                # Apply the config by entering config mode, writing lines, then
+                # leaving config mode.
+                self.send('configure terminal')
+                self.send(config)
+                self.send('exit')
+            else:
+                raise Exception("Don't know how to apply config on this type of Cisco device!")
+        else:
+            raise Exception("Don't know how to apply config on this vendor yet!")
+
     def write_config(self):
         """Write mem or copy run start or whatever.
         Depending on the device type, this could be quite different."""
@@ -439,18 +459,24 @@ perform that action.
             
         if "Cisco" in self.identifiers:
             if "IOS" in self.identifiers:
-                session.send('write memory')
+                self.send('write memory')
             elif "Nexus" in self.identifiers:
-                session.send('copy running-config startup-config')
+                self.send('copy running-config startup-config')
             elif "ASA" in self.identifiers:
-                session.send('write memory')
+                self.send('write memory')
             elif "FWSM" in self.identifiers:
-                session.send('write memory')
+                self.send('write memory')
+            else:
+                raise Exception("Don't know how to write config on this type of Cisco device!")
         if "Fortinet" in self.identifiers:
             if "FortiGate" in self.identifiers:
                 # FortiGate devices automatically write their config when you
                 # leave edit mode.
                 pass
+            else:
+                raise Exception("Don't know how to write config on this type of Fortinet device!")
+        else:
+            raise Exception("Don't know how to write config on this vendor yet!")
 
         return True
 

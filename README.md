@@ -155,6 +155,7 @@ Thus far, a CLIWrangler object supports the following methods and variables.
 
 * check_ha_status() - This attempts to figure out whether you're on a device that you could make changes on. If you're on a standalone or primary device, it returns True. If you're on a secondary or backup device in an HA pair, it returns False. If it can't figure it out, it returns None.
 * enable(enablepass) - This enables for you and deals with the password prompt that comes up. If it succeeds, it sets the variable "enabled" to True. If the CLIWrangler senses from the prompt style that you're already enabled, it won't try to re-enable.
+* apply_config(lines_of_config) - This applies a block of configuration to the running config. You need to pass it the block of config as a string. In the future, it'll probably take a list, too, but right now, it doesn't.
 * write_config() - This writes the config for you. Some devices use "write mem", some use "copy run start", and so forth.. this one tries to abstract that detail away from you so you don't need to worry about it.
 
 ### object variables
