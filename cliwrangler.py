@@ -231,7 +231,9 @@ class CLIWrangler:
             'cisco ': 'Cisco'
             'CISCO ': 'Cisco'
             ' IOS ': 'IOS'
+            'IOS ': 'IOS'
             ' C3750 ': 'C3750'
+            ' WS-C6509-E ': 'C6509-E'
             'Adaptive Security Appliance': 'ASA'
             'ASA5520': 'ASA5520'
             'FWSM Firewall': 'FWSM'
@@ -468,7 +470,7 @@ perform that action.
                 self.send('write memory')
             else:
                 raise Exception("Don't know how to write config on this type of Cisco device!")
-        if "Fortinet" in self.identifiers:
+        elif "Fortinet" in self.identifiers:
             if "FortiGate" in self.identifiers:
                 # FortiGate devices automatically write their config when you
                 # leave edit mode.
