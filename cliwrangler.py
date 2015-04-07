@@ -13,13 +13,14 @@ import paramiko
 import paramikoe
 import re
 import yaml
+import time
 
 class CLIWrangler:
     """This class provides a clean interface to a Cisco IOS CLI ssh session. 
     To deal with the SSH and expect-type functionality, we use Paramiko and
     Paramiko-expect."""
 
-    def __init__(self, timeout=60, newline='\r', backspace='\b', buffer_size=1024, echo=False, debug=False):    
+    def __init__(self, timeout=20, newline='\r', backspace='\b', buffer_size=1024, wait=0.2, echo=False, debug=False):    
         """The constructor for the CLIWrangler class.
 
         Arguments:
@@ -27,6 +28,7 @@ class CLIWrangler:
         newline - The newline character if '\r' doesn't work.
         backspace - The backspace character if '\b' doesn't work.
         buffer_size - The buffer size.
+        wait - The number of seconds to wait after every command sent, thanks to IOS-XE.
         echo - Should we echo the session to the screen? (For verbosity purposes.)
         debug - Should we provide ssh debug information on the screen as well?
         """
@@ -36,6 +38,7 @@ class CLIWrangler:
         self.newline = newline
         self.backspace = backspace
         self.buffer_size = buffer_size
+        self.wait = wait
         self.echo = echo
         self.debug = debug
 
@@ -133,6 +136,7 @@ class CLIWrangler:
 
         # Send our unique string.
         self.interact.channel.send(unique_string)
+
         # Expect the unique string we just sent, with the prompt prefix at the
         # beginning of the line if we have one.
         if self.prompt_prefix:
@@ -294,6 +298,12 @@ class CLIWrangler:
 
         # Send the command.
         self.interact.send(command)
+
+        # Unfortunately, on IOS-XE, there's a short period of time after a
+        # command is sent where if you send characters, they get thrown out.
+        # This should be considered a bug, but I doubt Cisco's going to fix it.
+        # Because of this IOS-XE bug, we need to wait after sending a command.
+        time.sleep(self.wait)
 
         # On the off chance that we couldn't disable paging, hit space bar a
         # few times. This is pretty sad, but necessary for things like the
