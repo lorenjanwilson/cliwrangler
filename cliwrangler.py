@@ -20,7 +20,7 @@ class CLIWrangler:
     To deal with the SSH and expect-type functionality, we use Paramiko and
     Paramiko-expect."""
 
-    def __init__(self, timeout=20, newline='\r', backspace='\b', buffer_size=1024, wait=0.2, echo=False, debug=False):    
+    def __init__(self, timeout=60, newline='\r', backspace='\b', buffer_size=1024, wait=0.2, echo=False, debug=False):    
         """The constructor for the CLIWrangler class.
 
         Arguments:
