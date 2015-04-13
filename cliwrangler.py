@@ -140,7 +140,12 @@ class CLIWrangler:
         # Expect the unique string we just sent, with the prompt prefix at the
         # beginning of the line if we have one.
         if self.prompt_prefix:
-            self.interact.expect("%s.*%s" % (self.prompt_prefix, unique_string))
+            # If your hostname is longer than 20 characters, IOS will cut off
+            # anything after character 20 when you enter expect mode. So let's
+            # also look for a cut-off version of that just in case.
+            prompt_and_unique_string = "%s.*%s" % (self.prompt_prefix, unique_string)
+            truncated_prompt_and_unique_string = "%s.*%s" % (self.prompt_prefix[:20], unique_string)
+            self.interact.expect([prompt_and_unique_string, truncated_prompt_and_unique_string])
         else:
             # If we don't have a prompt prefix, at least expect something sane.
             # Unfortunately, this is a bit more complex, because we have to
