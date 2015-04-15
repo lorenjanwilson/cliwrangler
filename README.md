@@ -82,9 +82,10 @@ time doing this.
 
 ## installation
 
-To install CLIWrangler, run the following command:
+To install CLIWrangler, run the following commands:
 
 ```bash
+sudo pip install git+https://github.com/fgimian/paramiko-expect.git 
 sudo pip install git+https://github.com/lorenjanwilson/cliwrangler.git
 ```
 
